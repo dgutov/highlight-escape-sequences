@@ -68,9 +68,12 @@ backslash followed by anything else.")
   "Modes where escape sequences can appear in any string literal."
   :type '(repeat function)
   :set (lambda (symbol value)
-         (hes-mode -1)
-         (set-default symbol value)
-         (hes-mode 1)))
+         (if (bound-and-true-p hes-mode)
+             (progn
+               (hes-mode -1)
+               (set-default symbol value)
+               (hes-mode 1))
+           (set-default symbol value))))
 
 ;;;###autoload
 (define-minor-mode hes-mode
