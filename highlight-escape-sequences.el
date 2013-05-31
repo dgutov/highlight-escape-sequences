@@ -72,6 +72,7 @@ backslash followed by anything else.")
          (set-default symbol value)
          (hes-mode 1)))
 
+;;;###autoload
 (define-minor-mode hes-mode
   "Toggle highlighting of escape sequences."
   :lighter "" :global t
