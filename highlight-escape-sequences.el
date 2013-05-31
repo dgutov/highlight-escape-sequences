@@ -54,7 +54,7 @@ backslash followed by anything else.")
                          (member (match-string 2) '("\\" "'")))
                     (if (fboundp 'ruby-syntax-expansion-allowed-p)
                         (ruby-syntax-expansion-allowed-p state)
-                      (memq term '(?\" ?/ ?\n t))))
+                      (memq term '(?\" ?/ ?\n ?` t))))
             'font-lock-regexp-grouping-backslash))
         prepend))))
 
