@@ -3,7 +3,7 @@
 ;; Author:   Dmitry Gutov <dgutov@yandex.ru>
 ;; URL:      https://github.com/dgutov/highlight-escape-sequences
 ;; Keywords: convenience
-;; Version:  0.1
+;; Version:  0.2
 
 ;; This file is not part of GNU Emacs.
 
@@ -23,10 +23,13 @@
 ;;; Commentary:
 
 ;; This global minor mode highlights escape sequences in strings and
-;; other kinds of literals with `font-lock-regexp-grouping-backslash'
-;; face when appropriate.
+;; other kinds of literals with `hes-escape-sequence-face' which
+;; inherits from `font-lock-regexp-grouping-construct' face by
+;; default and with `hes-escape-backslash-face' which inherits from
+;; `font-lock-regexp-grouping-backslash' face by default.
 
-;; It currently supports `ruby-mode' and both main JavaScript modes.
+;; It currently supports `ruby-mode', both main JavaScript modes,
+;; and C/C++ modes treating the former ones as subsets of the latter.
 
 ;; To enable it elsewhere, customize `hes-simple-modes'.
 
@@ -40,11 +43,19 @@
   "Highlight escape sequences"
   :group 'convenience)
 
+(defface hes-escape-sequence-face
+  '((default :inherit font-lock-regexp-grouping-construct))
+  "Face to highlight an escape sequence.")
+
+(defface hes-escape-backslash-face
+  '((default :inherit font-lock-regexp-grouping-backslash))
+  "Face to highlight an escape backslash.")
+
 (defconst hes-escape-sequence-re
-  "\\(\\\\\\(\\(?:[0-9]\\|x\\)\\(?:[0-9]\\(?:[0-9]\\)?\\)?\\|.\\)\\)"
+  "\\(\\\\\\(\\(?:U[[:xdigit:]]\\{8\\}\\)\\|\\(?:u[[:xdigit:]]\\{4\\}\\)\\|\\(?:x[[:xdigit:]]\\{2,\\}\\)\\|\\(?:[0-7]\\{1,3\\}\\)\\|.\\)\\)"
   "Regexp to match an escape sequence.
-Currently handles octals (\\123), hexadecimals (\\x12) and
-backslash followed by anything else.")
+Currently handles octals (\\123), hexadecimals (\\x12..Inf), unicode
+\(\\u1234 or \\U12345678), and backslash followed by anything else.")
 
 (defconst hes-ruby-keywords
   `((,hes-escape-sequence-re
@@ -55,16 +66,19 @@ backslash followed by anything else.")
                     (if (fboundp 'ruby-syntax-expansion-allowed-p)
                         (ruby-syntax-expansion-allowed-p state)
                       (memq term '(?\" ?/ ?\n ?` t))))
-            'font-lock-regexp-grouping-backslash))
+            'hes-escape-backslash-face))
         prepend))))
 
 (defconst hes-simple-keywords
   `((,hes-escape-sequence-re
      (1 (when (nth 3 (syntax-ppss))
-          'font-lock-regexp-grouping-backslash)
-        prepend))))
+          'hes-escape-backslash-face)
+        prepend)
+     (2 (when (nth 3 (syntax-ppss))
+	  'hes-escape-sequence-face)
+	prepend))))
 
-(defcustom hes-simple-modes '(js-mode js2-mode)
+(defcustom hes-simple-modes '(js-mode js2-mode c-mode c++-mode)
   "Modes where escape sequences can appear in any string literal."
   :type '(repeat function)
   :set (lambda (symbol value)
