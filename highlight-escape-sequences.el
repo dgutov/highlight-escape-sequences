@@ -45,40 +45,115 @@
 
 (defface hes-escape-sequence-face
   '((default :inherit font-lock-regexp-grouping-construct))
-  "Face to highlight an escape sequence.")
+  "Face to highlight an escape sequence."
+  :group 'hes-mode)
 
 (defface hes-escape-backslash-face
   '((default :inherit font-lock-regexp-grouping-backslash))
-  "Face to highlight an escape backslash.")
+  "Face to highlight an escape backslash."
+  :group 'hes-mode)
 
-(defconst hes-escape-sequence-re
-  "\\(\\\\\\(\\(?:U[[:xdigit:]]\\{8\\}\\)\\|\\(?:u[[:xdigit:]]\\{4\\}\\)\\|\\(?:x[[:xdigit:]]\\{2,\\}\\)\\|\\(?:[0-7]\\{1,3\\}\\)\\|.\\)\\)"
-  "Regexp to match an escape sequence.
-Currently handles octals (\\123), hexadecimals (\\x12..Inf), unicode
-\(\\u1234 or \\U12345678), and backslash followed by anything else.")
+(defconst hes-common-escape-sequence-re
+  (concat
+   "\\(\\\\\\("
+   "[0-3][0-7]\\{0,2\\}\\|[4-7][0-7]?"
+   "\\|"
+   "x[[:xdigit:]]\\{2\\}"
+   "\\|"
+   "u[[:xdigit:]]\\{4\\}"
+   "\\|"
+   "[\'\"\\bfnrtv]"
+   "\\)\\)")
+  "Regexp to match the most common escape sequences.
+Handles octals (\\0-\\377), hexadecimals (\\x00-\\xFF), unicodes
+\(\\u0000-\\uFFFF), and backslash followed by one of `bfnrtv'.")
 
-(defconst hes-ruby-keywords
-  `((,hes-escape-sequence-re
+(defconst hes-c/c++-escape-sequence-re
+  (concat
+   "\\(\\\\\\("
+   "[0-3][0-7]\\{0,2\\}\\|[4-7][0-7]?"
+   "\\|"
+   "x[[:xdigit:]]+"
+   "\\|"
+   "u[[:xdigit:]]\\{4\\}"
+   "\\|"
+   "U[[:xdigit:]]\\{8\\}"
+   "\\|"
+   "[\'\"\?\\abfnrtv]"
+   "\\)\\)")
+  "Regexp to match C/C++ escape sequences.")
+
+(defconst hes-java-escape-sequence-re
+  (concat
+   "\\(\\\\\\("
+   "[0-3][0-7]\\{0,2\\}\\|[4-7][0-7]?"
+   "\\|"
+   "u[[:xdigit:]]\\{4\\}"
+   "\\|"
+   "[\'\"\\bfnrt]"
+   "\\)\\)")
+  "Regexp to match JavaScript escape sequences.")
+
+(defconst hes-js-escape-sequence-re
+  (concat
+   "\\(\\\\\\("
+   "[0-3][0-7]\\{0,2\\}\\|[4-7][0-7]?"
+   "\\|"
+   "x[[:xdigit:]]\\{2\\}"
+   "\\|"
+   "u[[:xdigit:]]\\{4\\}"
+   "\\|"
+   ;; "[\'\"\\bfnrtv]"
+   ;; "\\|"
+   "."
+   "\\)\\)")
+  "Regexp to match JavaScript escape sequences.")
+
+(defconst hes-ruby-escape-sequence-re
+  (concat
+   "\\(\\\\\\("
+   "[0-3][0-7]\\{0,2\\}\\|[4-7][0-7]?"
+   "\\|"
+   "x[[:xdigit:]]\\{1,2\\}"
+   "\\|"
+   "u\\(?:"
+   "[[:xdigit:]]\\{4\\}"
+   "\\|"
+   "{"
+   "\\(?:10?[[:xdigit:]]\\{0,4\\}\\|0?[[:xdigit:]]\\{1,5\\}\\)"
+   "\\(?:[[:space:]]+\\(?:10?[[:xdigit:]]\\{0,4\\}\\|0?[[:xdigit:]]\\{1,5\\}\\)\\)*"
+   "}"
+   "\\)"
+   "\\|"
+   ;; "[\'\"\\abefnrstv]"
+   ;; "\\|"
+   "."
+   "\\)\\)")
+  "Regexp to match Ruby escape sequences.
+Currently doesn't handle \\C-, \\M- etc.")
+
+(defun hes--make-ruby-keywords(re)
+  `((,re
      (1 (let* ((state (syntax-ppss))
-               (term (nth 3 state)))
-          (when (or (and (eq term ?')
-                         (member (match-string 2) '("\\" "'")))
-                    (if (fboundp 'ruby-syntax-expansion-allowed-p)
-                        (ruby-syntax-expansion-allowed-p state)
-                      (memq term '(?\" ?/ ?\n ?` t))))
-            'hes-escape-backslash-face))
-        prepend))))
+	       (term (nth 3 state)))
+	  (when (or (and (eq term ?')
+			 (member (match-string 2) '("\\" "'")))
+		    (if (fboundp 'ruby-syntax-expansion-allowed-p)
+			(ruby-syntax-expansion-allowed-p state)
+		      (memq term '(?\" ?/ ?\n ?` t))))
+	    'hes-escape-backslash-face))
+	prepend))))
 
-(defconst hes-simple-keywords
-  `((,hes-escape-sequence-re
+(defun hes--make-simple-keywords(re)
+  `((,re
      (1 (when (nth 3 (syntax-ppss))
-          'hes-escape-backslash-face)
-        prepend)
+	  'hes-escape-backslash-face)
+	prepend)
      (2 (when (nth 3 (syntax-ppss))
 	  'hes-escape-sequence-face)
 	prepend))))
 
-(defcustom hes-simple-modes '(js-mode js2-mode c-mode c++-mode)
+(defcustom hes-simple-modes '()
   "Modes where escape sequences can appear in any string literal."
   :type '(repeat function)
   :set (lambda (symbol value)
@@ -90,17 +165,38 @@ Currently handles octals (\\123), hexadecimals (\\x12..Inf), unicode
            (set-default symbol value))))
 
 ;;;###autoload
+(defun turn-on-hes-mode()
+  "Turn on highlighting of escape sequences."
+  (interactive)
+  (font-lock-add-keywords 'ruby-mode (hes--make-ruby-keywords   hes-ruby-escape-sequence-re)  'append)
+  (font-lock-add-keywords 'c-mode    (hes--make-simple-keywords hes-c/c++-escape-sequence-re) 'append)
+  (font-lock-add-keywords 'c++-mode  (hes--make-simple-keywords hes-c/c++-escape-sequence-re) 'append)
+  (font-lock-add-keywords 'java-mode (hes--make-simple-keywords hes-java-escape-sequence-re)  'append)
+  (font-lock-add-keywords 'js-mode   (hes--make-simple-keywords hes-js-escape-sequence-re)    'append)
+  (font-lock-add-keywords 'js2-mode  (hes--make-simple-keywords hes-js-escape-sequence-re)    'append)
+  (dolist (mode hes-simple-modes)
+    (font-lock-add-keywords mode (hes--make-simple-keywords hes-common-escape-sequence-re) 'append)))
+
+;;;###autoload
+(defun turn-off-hes-mode()
+  "Turn off highlighting of escape sequences"
+  (interactive)
+  (font-lock-remove-keywords 'ruby-mode (hes--make-ruby-keywords   hes-ruby-escape-sequence-re))
+  (font-lock-remove-keywords 'c-mode    (hes--make-simple-keywords hes-c/c++-escape-sequence-re))
+  (font-lock-remove-keywords 'c++-mode  (hes--make-simple-keywords hes-c/c++-escape-sequence-re))
+  (font-lock-remove-keywords 'java-mode (hes--make-simple-keywords hes-java-escape-sequence-re))
+  (font-lock-remove-keywords 'js-mode   (hes--make-simple-keywords hes-js-escape-sequence-re))
+  (font-lock-remove-keywords 'js2-mode  (hes--make-simple-keywords hes-js-escape-sequence-re))
+  (dolist (mode hes-simple-modes)
+    (font-lock-remove-keywords mode (hes--make-simple-keywords hes-common-escape-sequence-re))))
+
+;;;###autoload
 (define-minor-mode hes-mode
   "Toggle highlighting of escape sequences."
   :lighter "" :global t
   (if hes-mode
-      (progn
-        (font-lock-add-keywords 'ruby-mode hes-ruby-keywords 'append)
-        (dolist (mode hes-simple-modes)
-          (font-lock-add-keywords mode hes-simple-keywords 'append)))
-    (font-lock-remove-keywords 'ruby-mode hes-ruby-keywords)
-    (dolist (mode hes-simple-modes)
-      (font-lock-remove-keywords mode hes-simple-keywords))))
+      (turn-on-hes-mode)
+    (turn-off-hes-mode)))
 
 (provide 'highlight-escape-sequences)
 
