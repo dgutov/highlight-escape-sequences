@@ -46,13 +46,11 @@
 
 (defface hes-escape-backslash-face
   '((default :inherit font-lock-regexp-grouping-backslash))
-  "Face to highlight an escape backslash."
-  :group 'hes-mode)
+  "Face to highlight an escape backslash.")
 
 (defface hes-escape-sequence-face
   '((default :inherit font-lock-regexp-grouping-construct))
-  "Face to highlight an escape sequence."
-  :group 'hes-mode)
+  "Face to highlight an escape sequence.")
 
 (defconst hes-common-escape-sequence-re
   (concat "\\(\\\\\\("
