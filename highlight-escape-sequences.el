@@ -1,7 +1,7 @@
 ;;; highlight-escape-sequences.el --- Highlight escape sequences -*- lexical-binding: t -*-
 
 ;; Author:   Dmitry Gutov <dgutov@yandex.ru>
-;; Contrib:  Pavel Matcula <dev.plvlml@gmail.com>
+;;	Pavel Matcula <dev.plvlml@gmail.com>
 ;; URL:      https://github.com/dgutov/highlight-escape-sequences
 ;; Keywords: convenience
 ;; Version:  0.2
