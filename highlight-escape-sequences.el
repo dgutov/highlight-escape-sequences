@@ -53,78 +53,58 @@
   "Face to highlight an escape sequence.")
 
 (defconst hes-common-escape-sequence-re
-  (concat "\\(\\\\\\("
-	  "[0-7]\\{1,3\\}"
-	  "\\|"
-	  "x[[:xdigit:]]\\{2\\}"
-	  "\\|"
-	  "u[[:xdigit:]]\\{4\\}"
-	  "\\|"
-	  "[\'\"\\bfnrtv]"
-	  "\\)\\)")
+  (rx (submatch
+       (and ?\\ (submatch
+		 (or (repeat 1 3 (in "0-7"))
+		     (and ?x (repeat 2 xdigit))
+		     (and ?u (repeat 4 xdigit))
+		     (any "\"\'\\bfnrtv"))))))
   "Regexp to match the most common escape sequences.
 
 Handles octals (\\0-\\777), hexadecimals (\\x00-\\xFF), unicodes
 \(\\u0000-\\uFFFF), and backslash followed by one of `bfnrtv'.")
 
 (defconst hes-c/c++-escape-sequence-re
-  (concat "\\(\\\\\\("
-	  "[0-7]\\{1,3\\}"
-	  "\\|"
-	  "x[[:xdigit:]]+"
-	  "\\|"
-	  "u[[:xdigit:]]\\{4\\}"
-	  "\\|"
-	  "U[[:xdigit:]]\\{8\\}"
-	  "\\|"
-	  "[\'\"\?\\abfnrtv]"
-	  "\\)\\)")
+  (rx (submatch
+       (and ?\\ (submatch
+		 (or (repeat 1 3 (in "0-7"))
+		     (and ?x (1+ xdigit))
+		     (and ?u (repeat 4 xdigit))
+		     (and ?U (repeat 8 xdigit))
+		     (any "\"\'\?\\abfnrtv"))))))
   "Regexp to match C/C++ escape sequences.")
 
 (defconst hes-java-escape-sequence-re
-  (concat "\\(\\\\\\("
-	  "[0-7]\\{1,3\\}"
-	  "\\|"
-	  "u[[:xdigit:]]\\{4\\}"
-	  "\\|"
-	  "[\'\"\\bfnrt]"
-	  "\\)\\)")
+  (rx (submatch
+       (and ?\\ (submatch
+		 (or (repeat 1 3 (in "0-7"))
+		     (and ?u (repeat 4 xdigit))
+		     (any "\"\'\\bfnrt"))))))
   "Regexp to match Java escape sequences.")
 
 (defconst hes-js-escape-sequence-re
-  (concat "\\(\\\\\\("
-	  "[0-7]\\{1,3\\}"
-	  "\\|"
-	  "x[[:xdigit:]]\\{2\\}"
-	  "\\|"
-	  "u[[:xdigit:]]\\{4\\}"
-	  "\\|"
-	  ;; "[\'\"\\bfnrtv]"
-	  ;; "\\|"
-	  "." ;; deprecated
-	  "\\)\\)")
+  (rx (submatch
+       (and ?\\ (submatch
+		 (or (repeat 1 3 (in "0-7"))
+		     (and ?x (repeat 2 xdigit))
+		     (and ?u (repeat 4 xdigit))
+		     ;; (any "\"\'\\bfnrtv")
+		     any))))) ;; deprecated
   "Regexp to match JavaScript escape sequences.")
 
 (defconst hes-ruby-escape-sequence-re
-  (concat "\\(\\\\\\("
-	  "[0-7]\\{1,3\\}"
-	  "\\|"
-	  "x[[:xdigit:]]\\{1,2\\}"
-	  "\\|"
-	  "u\\(?:"
-	  (concat "[[:xdigit:]]\\{4\\}"
-		  "\\|"
-		  "{"
-		  (concat "[[:xdigit:]]\\{1,6\\}"
-			  "\\(?:"
-			  "[[:space:]]+"
-			  "[[:xdigit:]]\\{1,6\\}"
-			  "\\)*")
-		  "}")
-	  "\\)"
-	  "\\|"
-	  "."
-	  "\\)\\)")
+  (rx (submatch
+       (and ?\\ (submatch
+		 (or (repeat 1 3 (in "0-7"))
+		     (and ?x (repeat 1 2 xdigit))
+		     (and ?u
+			  (or (repeat 4 xdigit)
+			      (and ?{
+				   (repeat 1 6 xdigit)
+				   (0+ (1+ space)
+				       (repeat 1 6 xdigit))
+				   ?})))
+		     any)))))
   "Regexp to match Ruby escape sequences.
 
 Currently doesn't handle \\C-, \\M- etc.")
