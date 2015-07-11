@@ -30,7 +30,7 @@
 ;; `font-lock-regexp-grouping-backslash' face by default.
 
 ;; It currently supports `ruby-mode' and some simple modes:
-;; both main JavaScript modes, Java mode, and C/C++ modes.
+;; both main JavaScript modes, Java mode, and C/C++/ObjC modes.
 
 ;; To enable it elsewhere, customize `hes-mode-alist'.
 
@@ -61,10 +61,13 @@
 		     (any "\"\'\\bfnrtv"))))))
   "Regexp to match the most common escape sequences.
 
-Handles octals (\\0-\\777), hexadecimals (\\x00-\\xFF), unicodes
-\(\\u0000-\\uFFFF), and backslash followed by one of `bfnrtv'.")
+Currently handles:
+- octals (\\0 to \\777),
+- hexadecimals (\\x00 to \\xFF),
+- unicodes (\\u0000 to \\uFFFF),
+- and backslash followed by one of \"\'\\bfnrtv.")
 
-(defconst hes-c/c++-escape-sequence-re
+(defconst hes-c/c++/objc-escape-sequence-re
   (rx (submatch
        (and ?\\ (submatch
 		 (or (repeat 1 3 (in "0-7"))
@@ -72,7 +75,13 @@ Handles octals (\\0-\\777), hexadecimals (\\x00-\\xFF), unicodes
 		     (and ?u (repeat 4 xdigit))
 		     (and ?U (repeat 8 xdigit))
 		     (any "\"\'\?\\abfnrtv"))))))
-  "Regexp to match C/C++ escape sequences.")
+  "Regexp to match C/C++/ObjC escape sequences.
+
+Currently handles:
+- octals (\\0 to \\777),
+- hexadecimals (\\x0 to \\xF..),
+- unicodes (\\u0000 to \\uFFFF, \\U00000000 to \\UFFFFFFFF),
+- and backslash followed by one of \"\'\?\\abfnrtv.")
 
 (defconst hes-java-escape-sequence-re
   (rx (submatch
@@ -80,7 +89,12 @@ Handles octals (\\0-\\777), hexadecimals (\\x00-\\xFF), unicodes
 		 (or (repeat 1 3 (in "0-7"))
 		     (and ?u (repeat 4 xdigit))
 		     (any "\"\'\\bfnrt"))))))
-  "Regexp to match Java escape sequences.")
+  "Regexp to match Java escape sequences.
+
+Currently handles:
+- octals (\\0 to \\777),
+- unicodes (\\u0000 to \\uFFFF),
+- and backslash followed by one of \"\'\\bfnrt.")
 
 (defconst hes-js-escape-sequence-re
   (rx (submatch
@@ -90,7 +104,13 @@ Handles octals (\\0-\\777), hexadecimals (\\x00-\\xFF), unicodes
 		     (and ?u (repeat 4 xdigit))
 		     ;; (any "\"\'\\bfnrtv")
 		     any))))) ;; deprecated
-  "Regexp to match JavaScript escape sequences.")
+  "Regexp to match JavaScript escape sequences.
+
+Currently handles:
+- octals (\\0 to \\777),
+- hexadecimals (\\x00 to \\xFF),
+- unicodes (\\u0000 to \\uFFFF),
+- and backslash followed by anything else.")
 
 (defconst hes-ruby-escape-sequence-re
   (rx (submatch
@@ -107,7 +127,14 @@ Handles octals (\\0-\\777), hexadecimals (\\x00-\\xFF), unicodes
 		     any)))))
   "Regexp to match Ruby escape sequences.
 
-Currently doesn't handle \\C-, \\M- etc.")
+Currently handles:
+- octals (\\0 to \\777),
+- hexadecimals (\\x0 to \\xFF),
+- unicodes (\\u0000 to \\uFFFF),
+- unicodes in the \\u{} form,
+- and backslash followed by anything else.
+
+Currently doesn't handle \\C-, \\M-, etc.")
 
 (defconst hes-ruby-escape-sequence-keywords
   `((,hes-ruby-escape-sequence-re
@@ -143,8 +170,9 @@ Currently doesn't handle \\C-, \\M- etc.")
   "Modes where escape sequences can appear in any string literal.")
 
 (defcustom hes-mode-alist
-  `((c-mode    . ,hes-c/c++-escape-sequence-re)
-    (c++-mode  . ,hes-c/c++-escape-sequence-re)
+  `((c-mode    . ,hes-c/c++/objc-escape-sequence-re)
+    (c++-mode  . ,hes-c/c++/objc-escape-sequence-re)
+    (objc-mode . ,hes-c/c++/objc-escape-sequence-re)
     (java-mode . ,hes-java-escape-sequence-re)
     (js-mode   . ,hes-js-escape-sequence-re)
     (js2-mode  . ,hes-js-escape-sequence-re)
