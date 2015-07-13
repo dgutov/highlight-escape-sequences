@@ -55,10 +55,10 @@
 (defconst hes-common-escape-sequence-re
   (rx (submatch
        (and ?\\ (submatch
-		 (or (repeat 1 3 (in "0-7"))
-		     (and ?x (repeat 2 xdigit))
-		     (and ?u (repeat 4 xdigit))
-		     (any "\"\'\\bfnrtv"))))))
+                 (or (repeat 1 3 (in "0-7"))
+                     (and ?x (repeat 2 xdigit))
+                     (and ?u (repeat 4 xdigit))
+                     (any "\"\'\\bfnrtv"))))))
   "Regexp to match the most common escape sequences.
 
 Currently handles:
@@ -70,11 +70,11 @@ Currently handles:
 (defconst hes-c/c++/objc-escape-sequence-re
   (rx (submatch
        (and ?\\ (submatch
-		 (or (repeat 1 3 (in "0-7"))
-		     (and ?x (1+ xdigit))
-		     (and ?u (repeat 4 xdigit))
-		     (and ?U (repeat 8 xdigit))
-		     (any "\"\'\?\\abfnrtv"))))))
+                 (or (repeat 1 3 (in "0-7"))
+                     (and ?x (1+ xdigit))
+                     (and ?u (repeat 4 xdigit))
+                     (and ?U (repeat 8 xdigit))
+                     (any "\"\'\?\\abfnrtv"))))))
   "Regexp to match C/C++/ObjC escape sequences.
 
 Currently handles:
@@ -86,9 +86,9 @@ Currently handles:
 (defconst hes-java-escape-sequence-re
   (rx (submatch
        (and ?\\ (submatch
-		 (or (repeat 1 3 (in "0-7"))
-		     (and ?u (repeat 4 xdigit))
-		     (any "\"\'\\bfnrt"))))))
+                 (or (repeat 1 3 (in "0-7"))
+                     (and ?u (repeat 4 xdigit))
+                     (any "\"\'\\bfnrt"))))))
   "Regexp to match Java escape sequences.
 
 Currently handles:
@@ -99,11 +99,11 @@ Currently handles:
 (defconst hes-js-escape-sequence-re
   (rx (submatch
        (and ?\\ (submatch
-		 (or (repeat 1 3 (in "0-7"))
-		     (and ?x (repeat 2 xdigit))
-		     (and ?u (repeat 4 xdigit))
-		     ;; (any "\"\'\\bfnrtv")
-		     any))))) ;; deprecated
+                 (or (repeat 1 3 (in "0-7"))
+                     (and ?x (repeat 2 xdigit))
+                     (and ?u (repeat 4 xdigit))
+                     ;; (any "\"\'\\bfnrtv")
+                     any))))) ;; deprecated
   "Regexp to match JavaScript escape sequences.
 
 Currently handles:
@@ -115,16 +115,16 @@ Currently handles:
 (defconst hes-ruby-escape-sequence-re
   (rx (submatch
        (and ?\\ (submatch
-		 (or (repeat 1 3 (in "0-7"))
-		     (and ?x (repeat 1 2 xdigit))
-		     (and ?u
-			  (or (repeat 4 xdigit)
-			      (and ?{
-				   (repeat 1 6 xdigit)
-				   (0+ (1+ space)
-				       (repeat 1 6 xdigit))
-				   ?})))
-		     any)))))
+                 (or (repeat 1 3 (in "0-7"))
+                     (and ?x (repeat 1 2 xdigit))
+                     (and ?u
+                          (or (repeat 4 xdigit)
+                              (and ?{
+                                   (repeat 1 6 xdigit)
+                                   (0+ (1+ space)
+                                       (repeat 1 6 xdigit))
+                                   ?})))
+                     any)))))
   "Regexp to match Ruby escape sequences.
 
 Currently handles:
@@ -153,11 +153,11 @@ Currently doesn't handle \\C-, \\M-, etc.")
 (defun hes-make-simple-escape-sequence-keywords(re)
   `((,re
      (1 (when (nth 3 (syntax-ppss))
-	  'hes-escape-backslash-face)
-	prepend)
+          'hes-escape-backslash-face)
+        prepend)
      (2 (when (nth 3 (syntax-ppss))
-	  'hes-escape-sequence-face)
-	prepend))))
+          'hes-escape-sequence-face)
+        prepend))))
 
 (define-obsolete-variable-alias 'hes-simple-modes 'hes-mode-alist
   "Modes where escape sequences can appear in any string literal.")
@@ -186,11 +186,11 @@ Currently doesn't handle \\C-, \\M-, etc.")
   (interactive)
   (dolist (mode hes-mode-alist)
     (if (atom mode)
-	(font-lock-add-keywords mode (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re) 'append)
+        (font-lock-add-keywords mode (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re) 'append)
       (when (stringp (cdr mode))
-	(font-lock-add-keywords (car mode) (hes-make-simple-escape-sequence-keywords (cdr mode)) 'append))
+        (font-lock-add-keywords (car mode) (hes-make-simple-escape-sequence-keywords (cdr mode)) 'append))
       (when (listp (cdr mode))
-	(font-lock-add-keywords (car mode) (cdr mode) 'append)))))
+        (font-lock-add-keywords (car mode) (cdr mode) 'append)))))
 
 ;;;###autoload
 (defun turn-off-hes-mode()
@@ -198,11 +198,11 @@ Currently doesn't handle \\C-, \\M-, etc.")
   (interactive)
   (dolist (mode hes-mode-alist)
     (if (atom mode)
-	(font-lock-remove-keywords mode (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re))
+        (font-lock-remove-keywords mode (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re))
       (when (stringp (cdr mode))
-	(font-lock-remove-keywords (car mode) (hes-make-simple-escape-sequence-keywords (cdr mode))))
+        (font-lock-remove-keywords (car mode) (hes-make-simple-escape-sequence-keywords (cdr mode))))
       (when (listp (cdr mode))
-	(font-lock-remove-keywords (car mode) (cdr mode))))))
+        (font-lock-remove-keywords (car mode) (cdr mode))))))
 
 ;;;###autoload
 (define-minor-mode hes-mode
