@@ -10,5 +10,6 @@ The theme on the screenshot is
 following addition:
 
 ```
-(put 'font-lock-regexp-grouping-backslash 'face-alias 'font-lock-builtin-face)
+(put 'hes-escape-backslash-face 'face-alias 'font-lock-builtin-face)
+(put 'hes-escape-sequence-face 'face-alias 'font-lock-builtin-face)
 ```
