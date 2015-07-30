@@ -103,7 +103,7 @@ Currently handles:
                      (and ?x (repeat 2 xdigit))
                      (and ?u (repeat 4 xdigit))
                      ;; (any "\"\'\\bfnrtv")
-                     any))))) ;; deprecated
+                     not-newline))))) ;; deprecated
   "Regexp to match JavaScript escape sequences.
 
 Currently handles:
@@ -124,7 +124,7 @@ Currently handles:
                                    (0+ (1+ space)
                                        (repeat 1 6 xdigit))
                                    ?})))
-                     any)))))
+                     not-newline)))))
   "Regexp to match Ruby escape sequences.
 
 Currently handles:
@@ -145,8 +145,12 @@ Currently doesn't handle \\C-, \\M-, etc.")
                     (if (fboundp 'ruby-syntax-expansion-allowed-p)
                         (ruby-syntax-expansion-allowed-p state)
                       (memq term '(?\" ?/ ?\n ?` t))))
-            (add-face-text-property (match-beginning 1) (match-end 1) 'hes-escape-backslash-face)
-            (add-face-text-property (match-beginning 2) (match-end 2) 'hes-escape-sequence-face)
+            ;; TODO: Switch to `add-face-text-property' when we're
+            ;; fine with only supporting Emacs 24.4 and up.
+            (font-lock-prepend-text-property (match-beginning 1) (match-end 1)
+                                             'face 'hes-escape-backslash-face)
+            (font-lock-prepend-text-property (match-beginning 2) (match-end 2)
+                                             'face 'hes-escape-sequence-face)
             nil))
         prepend))))
 
