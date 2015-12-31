@@ -154,6 +154,23 @@ Currently doesn't handle \\C-, \\M-, etc.")
             nil))
         prepend))))
 
+(defconst hes-elisp-escape-sequence-re
+  (rx (submatch
+       (and ?\\ (submatch
+                 (or
+                  (and ?u (repeat 4 xdigit))
+                  (and ?U ?0 ?0 (repeat 6 xdigit))
+                  (and ?x (+ xdigit)) ;; variable number hex digits
+                  (+ (in "0-7"))      ;; variable number octal digits
+                  not-newline)))))
+
+  "Regexp to match Emacs Lisp escape sequences.
+
+Currently handles:
+- unicodes (\\uNNNN and \\U00NNNNNN)
+- hexadecimal (\\x...) and octal (\\0-7), variable number of digits
+- backslash followed by anything else.")
+
 (defun hes-make-simple-escape-sequence-keywords(re)
   `((,re
      (1 (when (nth 3 (syntax-ppss))
@@ -167,13 +184,15 @@ Currently doesn't handle \\C-, \\M-, etc.")
   "Modes where escape sequences can appear in any string literal.")
 
 (defcustom hes-mode-alist
-  `((c-mode    . ,hes-c/c++/objc-escape-sequence-re)
-    (c++-mode  . ,hes-c/c++/objc-escape-sequence-re)
-    (objc-mode . ,hes-c/c++/objc-escape-sequence-re)
-    (java-mode . ,hes-java-escape-sequence-re)
-    (js-mode   . ,hes-js-escape-sequence-re)
-    (js2-mode  . ,hes-js-escape-sequence-re)
-    (ruby-mode . ,hes-ruby-escape-sequence-keywords))
+  `((c-mode          . ,hes-c/c++/objc-escape-sequence-re)
+    (c++-mode        . ,hes-c/c++/objc-escape-sequence-re)
+    (objc-mode       . ,hes-c/c++/objc-escape-sequence-re)
+    (java-mode       . ,hes-java-escape-sequence-re)
+    (clojure-mode    . ,hes-java-escape-sequence-re)
+    (js-mode         . ,hes-js-escape-sequence-re)
+    (js2-mode        . ,hes-js-escape-sequence-re)
+    (ruby-mode       . ,hes-ruby-escape-sequence-keywords)
+    (emacs-lisp-mode . ,hes-elisp-escape-sequence-re))
   "Alist of regexps or `font-lock-keywords' elements for major modes."
   :type '(repeat function)
   :set (lambda (symbol value)
