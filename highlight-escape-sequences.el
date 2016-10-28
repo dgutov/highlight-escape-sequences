@@ -1,12 +1,14 @@
 ;;; highlight-escape-sequences.el --- Highlight escape sequences -*- lexical-binding: t -*-
 
+;; Copyright (C) 2013, 2015  Free Software Foundation, Inc.
+
 ;; Author:   Dmitry Gutov <dgutov@yandex.ru>
 ;;	Pavel Matcula <dev.plvlml@gmail.com>
 ;; URL:      https://github.com/dgutov/highlight-escape-sequences
 ;; Keywords: convenience
 ;; Version:  0.2
 
-;; This file is not part of GNU Emacs.
+;; This file is part of GNU Emacs.
 
 ;; This file is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
