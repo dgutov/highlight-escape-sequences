@@ -6,7 +6,7 @@
 ;;	Pavel Matcula <dev.plvlml@gmail.com>
 ;; URL:      https://github.com/dgutov/highlight-escape-sequences
 ;; Keywords: convenience
-;; Version:  0.2
+;; Version:  0.3
 
 ;; This file is part of GNU Emacs.
 
@@ -182,9 +182,6 @@ Currently handles:
      (2 (when (nth 3 (syntax-ppss))
           'hes-escape-sequence-face)
         prepend))))
-
-(define-obsolete-variable-alias 'hes-simple-modes 'hes-mode-alist
-  "Modes where escape sequences can appear in any string literal.")
 
 (defcustom hes-mode-alist
   `((c-mode          . ,hes-c/c++/objc-escape-sequence-re)
