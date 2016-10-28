@@ -209,9 +209,15 @@ Currently handles:
   (interactive)
   (dolist (mode hes-mode-alist)
     (if (atom mode)
-        (font-lock-add-keywords mode (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re) 'append)
+        (font-lock-add-keywords
+         mode
+         (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re)
+         'append)
       (when (stringp (cdr mode))
-        (font-lock-add-keywords (car mode) (hes-make-simple-escape-sequence-keywords (cdr mode)) 'append))
+        (font-lock-add-keywords
+         (car mode)
+         (hes-make-simple-escape-sequence-keywords (cdr mode))
+         'append))
       (when (listp (cdr mode))
         (font-lock-add-keywords (car mode) (cdr mode) 'append)))))
 
@@ -221,9 +227,13 @@ Currently handles:
   (interactive)
   (dolist (mode hes-mode-alist)
     (if (atom mode)
-        (font-lock-remove-keywords mode (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re))
+        (font-lock-remove-keywords
+         mode
+         (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re))
       (when (stringp (cdr mode))
-        (font-lock-remove-keywords (car mode) (hes-make-simple-escape-sequence-keywords (cdr mode))))
+        (font-lock-remove-keywords
+         (car mode)
+         (hes-make-simple-escape-sequence-keywords (cdr mode))))
       (when (listp (cdr mode))
         (font-lock-remove-keywords (car mode) (cdr mode))))))
 
