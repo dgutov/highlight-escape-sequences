@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013, 2015-2017  Free Software Foundation, Inc.
 
 ;; Author:   Dmitry Gutov <dgutov@yandex.ru>
-;;	Pavel Matcula <dev.plvlml@gmail.com>
+;;  Pavel Matcula <dev.plvlml@gmail.com>
 ;; URL:      https://github.com/dgutov/highlight-escape-sequences
 ;; Keywords: convenience
 ;; Version:  0.4
@@ -185,16 +185,18 @@ Currently handles:
         prepend))))
 
 (defcustom hes-mode-alist
-  `((c-mode          . ,hes-c/c++/objc-escape-sequence-re)
-    (c++-mode        . ,hes-c/c++/objc-escape-sequence-re)
-    (objc-mode       . ,hes-c/c++/objc-escape-sequence-re)
-    (go-mode         . ,hes-c/c++/objc-escape-sequence-re)
-    (java-mode       . ,hes-java-escape-sequence-re)
-    (clojure-mode    . ,hes-java-escape-sequence-re)
-    (js-mode         . ,hes-js-escape-sequence-re)
-    (js2-mode        . ,hes-js-escape-sequence-re)
-    (ruby-mode       . ,hes-ruby-escape-sequence-keywords)
-    (emacs-lisp-mode . ,hes-elisp-escape-sequence-re))
+  `((c-mode                . ,hes-c/c++/objc-escape-sequence-re)
+    (c++-mode              . ,hes-c/c++/objc-escape-sequence-re)
+    (objc-mode             . ,hes-c/c++/objc-escape-sequence-re)
+    (go-mode               . ,hes-c/c++/objc-escape-sequence-re)
+    (java-mode             . ,hes-java-escape-sequence-re)
+    (clojure-mode          . ,hes-java-escape-sequence-re)
+    (js-mode               . ,hes-js-escape-sequence-re)
+    (js2-mode              . ,hes-js-escape-sequence-re)
+    (ruby-mode             . ,hes-ruby-escape-sequence-keywords)
+    (lisp-mode             . ,hes-elisp-escape-sequence-re)
+    (lisp-interaction-mode . ,hes-elisp-escape-sequence-re)
+    (emacs-lisp-mode       . ,hes-elisp-escape-sequence-re))
   "Alist of regexps or `font-lock-keywords' elements for major modes."
   :type '(repeat function)
   :set (lambda (symbol value)
