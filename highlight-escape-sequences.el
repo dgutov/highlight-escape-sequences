@@ -7,6 +7,7 @@
 ;; URL:      https://github.com/dgutov/highlight-escape-sequences
 ;; Keywords: convenience
 ;; Version:  0.4
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This file is part of GNU Emacs.
 
@@ -207,47 +208,45 @@ Currently handles:
                (hes-mode 1))
            (set-default symbol value))))
 
-;;;###autoload
 (defun turn-on-hes-mode()
   "Turn on highlighting of escape sequences."
   (interactive)
   (dolist (mode hes-mode-alist)
     (if (atom mode)
         (font-lock-add-keywords
-         mode
-         (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re)
-         'append)
+         nil
+         (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re))
       (when (stringp (cdr mode))
         (font-lock-add-keywords
-         (car mode)
-         (hes-make-simple-escape-sequence-keywords (cdr mode))
-         'append))
+         nil
+         (hes-make-simple-escape-sequence-keywords (cdr mode))))
       (when (listp (cdr mode))
-        (font-lock-add-keywords (car mode) (cdr mode) 'append)))))
+        (font-lock-add-keywords nil (cdr mode))))))
 
-;;;###autoload
 (defun turn-off-hes-mode()
   "Turn off highlighting of escape sequences"
   (interactive)
   (dolist (mode hes-mode-alist)
     (if (atom mode)
         (font-lock-remove-keywords
-         mode
+         nil
          (hes-make-simple-escape-sequence-keywords hes-common-escape-sequence-re))
       (when (stringp (cdr mode))
         (font-lock-remove-keywords
-         (car mode)
+         nil
          (hes-make-simple-escape-sequence-keywords (cdr mode))))
       (when (listp (cdr mode))
-        (font-lock-remove-keywords (car mode) (cdr mode))))))
+        (font-lock-remove-keywords nil (cdr mode))))))
 
 ;;;###autoload
 (define-minor-mode hes-mode
   "Toggle highlighting of escape sequences."
-  :lighter "" :global t
+  :init-value nil
+  :lighter " hes"
   (if hes-mode
       (turn-on-hes-mode)
-    (turn-off-hes-mode)))
+    (turn-off-hes-mode))
+  (font-lock-flush))
 
 (provide 'highlight-escape-sequences)
 
